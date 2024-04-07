@@ -1,5 +1,5 @@
 //global variables
-const size = 1000;
+const size = document.getElementById('the-clock').offsetWidth;
 const center = size / 2;
 const materSize = size * 0.4;
 const toRad = Math.PI / 180;
@@ -7,7 +7,26 @@ const ecliptic = 23.4362026703;
 const lat = 14.5995;
 const long = 120.9842;
 const equatorSize = Math.tan((90 * toRad - ecliptic * toRad)/2) * materSize;
-const negative = -1;
+let negative = 1;
+
+function flip() {
+    if (negative == 1) {
+        negative = -1;
+    } else {
+        negative = 1;
+    }
+    
+    initAlmucantars();
+    initAzimuth();
+    getQuote();
+}
+
+function bodyCSS() {
+    document.body.style.background = "radial-gradient(black, darkblue)";
+    document.body.style.color = "white";
+}
+
+bodyCSS();
 
 //time
 function callTime() {
@@ -80,10 +99,10 @@ function initStarLines() {
         const thetastart = Math.tan((90 * toRad - (negative * StartDec[i]) * toRad)/2);
         const thetaend = Math.tan((90 * toRad - (negative * EndDec[i]) * toRad)/2);
 
-        const xcs = -equatorSize * thetastart * Math.cos(((negative *  StartRA[i]) + 180 + rotate) * toRad);
-        const ycs = negative * equatorSize * thetastart * Math.sin(((negative * StartRA[i]) + 180 + rotate) * toRad);
-        const xce = -equatorSize * thetaend * Math.cos(((negative * EndRA[i]) + 180 + rotate) * toRad);
-        const yce = negative * equatorSize * thetaend * Math.sin(((negative * EndRA[i]) + 180 + rotate) * toRad);
+        const xcs = negative * -equatorSize * thetastart * Math.cos(((StartRA[i]) + 180 + rotate) * toRad);
+        const ycs = equatorSize * thetastart * Math.sin(((StartRA[i]) + 180 + rotate) * toRad);
+        const xce = negative * -equatorSize * thetaend * Math.cos(((EndRA[i]) + 180 + rotate) * toRad);
+        const yce = equatorSize * thetaend * Math.sin(((EndRA[i]) + 180 + rotate) * toRad);
 
         const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
         line.setAttribute("x1", center + xcs);
@@ -113,8 +132,8 @@ function initRete() {
 
             const theta = Math.tan((90 * toRad - (negative * declination[i]) * toRad)/2);
 
-            const xc = negative * -equatorSize * theta * Math.cos(((negative * rAscencion[i]) + 180 + rotate) * toRad);
-            const yc = negative * -equatorSize * theta * Math.sin(((negative * rAscencion[i]) + 180 + rotate) * toRad);
+            const xc = negative * -equatorSize * theta * Math.cos(((rAscencion[i]) + 180 + rotate) * toRad);
+            const yc = -equatorSize * theta * Math.sin(((rAscencion[i]) + 180 + rotate) * toRad);
             const radius = (6 - magnitude[i]) / 2;
 
             circle.setAttribute("cx", center + xc);
@@ -183,6 +202,7 @@ function initMask() {
 
 function initAzimuth() {
     const svg = document.getElementById("azimuth-svg");
+    svg.innerHTML = "";
     const c = center;
     let req = equatorSize;
     console.log(req);
@@ -223,8 +243,8 @@ function printSiderealTime() {
     const rotate = (sidRotate + 90 - 100.620121 - manilaLong);
     const printLog = 360 - ((360 + 270 + rotate) % 360);
 
-    document.getElementById("sidereal-time").innerHTML = "Sidereal Time: " + Math.floor(printLog / 15) + "° " + Math.floor(printLog % 15 * 4) + "' " + Math.floor((printLog % 1) * 60) + '"';
-    document.getElementById("sidereal-time").innerHTML += " Local Time: " + Math.floor(date.getHours()) + ":" + Math.floor(date.getMinutes()) + ":" + date.getSeconds();
+    document.getElementById("sidereal-time").innerHTML = "Sidereal Time: " + Math.floor(Math.floor(printLog)/15) + "° " + Math.floor(Math.floor((printLog % 15)) * 4) + "'" + Math.floor((printLog % 15) * 4 % 1 * 60) + '"';
+    document.getElementById("sidereal-time").innerHTML += " Local Time: " + date.toLocaleTimeString();
 }
 
 function initAzimuthMask() {
@@ -251,6 +271,18 @@ function initAzimuthMask() {
                     '<circle cx="'+ size / 2 +'" cy="'+ size / 2+'" r="'+ size / 2.5 +'" fill="transparent" stroke="white" stroke-width="1"/>';
 }
 
+function getQuote() {
+    let quotes = ["Sic itur ad astra",
+    "Ad astra per aspera",
+    "Tempus fugit",
+    "Die Zeit flugt",
+    "Nur die Sterne bleibt immer", 
+    "We are made of stardust",
+    "Die Sterne sind immer da"];
+    let quote = quotes[Math.floor(Math.random() * quotes.length)];
+    document.getElementById("quote").innerHTML = quote;
+}
+
 initClockwork();
 initFill();
 initTropic();
@@ -258,4 +290,7 @@ initStarLines();
 initAlmucantars();
 initAzimuth();
 initMask();
+initRete();
+getQuote();
+setInterval(getQuote, 86400000);
 setInterval(printSiderealTime);
