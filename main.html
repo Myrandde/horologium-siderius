@@ -1,21 +1,23 @@
-<!DOCTYPE html>
 <html>
     <head>
         <title>Sic itur ad astra</title>
         <link rel="stylesheet" href="./output.css">
         <link href="favicon.svg" rel="icon" type="image/svg+xml">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <meta charset="utf-8">
         <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
     <body>
-        <body class="flex justify-center items-center h-screen bg-black">
+        <body class="flex justify-center items-center h-auto bg-black">
             <div class="relative w-[1000px] h-[1000px]" id="the-clock">
             </div>
             <div class="absolute w-[1000px] h-[1000px] flex flex-col justify-center justify-between text-center p-4">
-                <span class="border-white border-2 bg-blue-950 text-4xl text-white font-serif" id="sidereal-time"></span>
-                <span class="border-white border-2 bg-blue-950 text-4xl text-white font-serif">Sic itur ad astra</span>
-            </div>
+                <span class="border-white border-2 bg-blue-950 text-3xl text-white font-serif" id="sidereal-time"></span>
+                <span class="border-white border-2 bg-blue-950 text-3xl text-white font-serif"><button id="quote" onclick="flip()"></button></span>
+                </span>
+            </div> 
+        </div>
             
         <script src="./clockwork.js">
         </script>
