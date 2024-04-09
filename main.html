@@ -9,16 +9,38 @@
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
     <body>
-        <body class="flex justify-center items-center h-auto bg-black">
-            <div class="relative w-[1000px] h-[1000px]" id="the-clock">
+        <body class="flex flex-col justify-center items-center align-middle h-auto bg-black">
+            <div class="relative flex justify-center items-center align-middle h-full">
+                <div class="absolute w-[1000px] h-[1000px]" id="the-clock">
+                </div>
+                <div class="absolute w-[1000px] h-[1000px] flex flex-col justify-center justify-between text-center p-4">
+                    <span class="border-white border-2 bg-blue-950 text-3xl text-white font-serif" id="sidereal-time"></span>
+                    <span class="border-white border-2 bg-blue-950 text-3xl text-white font-serif"><button id="quote" onclick="flip()"></button></span>
+                    </span>
+                </div>
             </div>
-            <div class="absolute w-[1000px] h-[1000px] flex flex-col justify-center justify-between text-center p-4">
-                <span class="border-white border-2 bg-blue-950 text-3xl text-white font-serif" id="sidereal-time"></span>
-                <span class="border-white border-2 bg-blue-950 text-3xl text-white font-serif"><button id="quote" onclick="flip()"></button></span>
-                </span>
-            </div> 
-        </div>
-            
+            <div class="p-10">
+                <div class="flex">
+                    <input class="p-10" type="range" name="" id="latRange" class="lat">
+                    <input class="p-10" type="range" name="" id="longRange" class="long">
+                </div>
+                <div>
+                    <select name="cities" id="cities" class="text-black" onchange="cityChange()">
+                        <option value='[14.5995, 120.9, 8]'> Manila </option>
+                        <option value='[50.9375, 6.9603, 2]'> Köln </option>
+                        <option value='[55.7558, 37.6176, 3]'> Москва </option>
+                        <option value='[35.6895, 139.6917, 9]'> 東京 </option>
+                        <option value='[37.5665, 126.9780, 9]'> 서울 </option>
+                        <option value='[39.9042, 116.4074, 8]'> 北京 </option>
+                        <option value='[48.8566, 2.3522, 2]'> Paris </option>
+                        <option value='[52.5200, 13.4050, 2]'> Berlin </option>
+                        <option value='[44.3845, 7.5426, 2]'> Cuneo </option>
+                        <option value='[25.276987, 51.526987, 3]'> الدوحة </option>
+                        <option value='[-33.8688, 151.2093, 10]'> Sydney </option>
+                        <option value='[-22.9068, -43.1729, -3]'> Rio de Janeiro </option>
+                    </select>
+                </div>
+            </div>
         <script src="./clockwork.js">
         </script>
         </body>
