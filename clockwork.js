@@ -4,22 +4,11 @@ const center = size / 2;
 const materSize = size * 0.4;
 const toRad = Math.PI / 180;
 const ecliptic = 23.4362026703;
-const lat = 14.5995;
-const long = 120.9842;
+let lat = 14.5995;
+let long = 120.9842;
 const equatorSize = Math.tan((90 * toRad - ecliptic * toRad)/2) * materSize;
 let negative = 1;
-
-function flip() {
-    if (negative == 1) {
-        negative = -1;
-    } else {
-        negative = 1;
-    }
-    
-    initAlmucantars();
-    initAzimuth();
-    getQuote();
-}
+let maxMag = 5;
 
 function bodyCSS() {
     document.body.style.background = "radial-gradient(black, darkblue)";
@@ -44,7 +33,7 @@ function callTime() {
 function initClockwork() {
     let clock = document.getElementById('the-clock');
     //defines all the svgs automatically
-    let svgs = ["fill","tropic", "circle", "starlines", "rete", "almucantar", "azimuth", "azimask","mask","edge"];
+    let svgs = ["fill","tropic", "circle", "starlines", "rete", "ecliptic", "almucantar", "azimuth", "azimask","mask","edge"];
 
 
     for (let i = 0; i < svgs.length; i++) {
@@ -70,13 +59,14 @@ function initTropic() {
     const radius = [materSize, equatorSize, materSize * Aleph * Aleph];
 
     for (let i = 0; i < radius.length; i++) {
-        console.log(radius);
+        console.log("Tropic Radius: " + radius[i] + " ");
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", center);
         circle.setAttribute("cy", center);
         circle.setAttribute("r", radius[i]);
         circle.setAttribute("fill", "transparent");
         circle.setAttribute("stroke", "white");
+        circle.setAttribute("stroke-width", .5);
         svg.appendChild(circle);
     }
 }
@@ -110,7 +100,7 @@ function initStarLines() {
         line.setAttribute("x2", center + xce);
         line.setAttribute("y2", center + yce);
         line.setAttribute("stroke", "white");
-        line.setAttribute("stroke-width", ".5");
+        line.setAttribute("stroke-width", ".25");
         svg.appendChild(line);
     }
         requestAnimationFrame(initStarLines);
@@ -134,22 +124,26 @@ function initRete() {
 
             const xc = negative * -equatorSize * theta * Math.cos(((rAscencion[i]) + 180 + rotate) * toRad);
             const yc = -equatorSize * theta * Math.sin(((rAscencion[i]) + 180 + rotate) * toRad);
-            const radius = (6 - magnitude[i]) / 2;
+            const radius = (maxMag - magnitude[i]) / 2;
+
+            if (radius < 0) {
+
+            } else {
 
             circle.setAttribute("cx", center + xc);
             circle.setAttribute("cy", center - yc);
             circle.setAttribute("r", radius);
             
-            if (((negative * declination[i])) > -ecliptic && magnitude[i] < 7) {
+            if (((negative * declination[i])) > -ecliptic && magnitude[i] < maxMag) {
                 circle.setAttribute("fill", "yellow");
                 circle.setAttribute("stroke", "white");
             } else {
                 circle.setAttribute("fill", "transparent");
                 circle.setAttribute("stroke", "transparent");
             } 
-            
-            circle.setAttribute("stroke-width", twinkle);
-            svg.appendChild(circle);
+                circle.setAttribute("stroke-width", twinkle);
+                svg.appendChild(circle);
+            }
         }
         requestAnimationFrame(initRete);
 }
@@ -160,7 +154,7 @@ function initAlmucantars() {
         const svg = document.getElementById("almucantar-svg");
         svg.innerHTML = "";
 
-        for (let i = 0; i < 90; i += 5) {
+        for (let i = 0; i < 90; i += 15) {
             const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
             const yc = equatorSize * (Math.cos(lat * toRad) / (Math.sin(lat * toRad) + Math.sin(negative * i * toRad)));
             const r = equatorSize * (Math.cos(negative * i * toRad) / (Math.sin(lat * toRad) + Math.sin(negative * i * toRad)));
@@ -172,7 +166,7 @@ function initAlmucantars() {
             if (i == 0) {
                 circle.setAttribute("stroke","yellow");
             }
-            circle.setAttribute("stroke-width",[i % 5 == 0 ? .5 : .1]);
+            circle.setAttribute("stroke-width",[i % 45 == 0 ? .5 : .1]);
             svg.appendChild(circle);
     }
 }
@@ -184,20 +178,9 @@ function initMask() {
                     '<rect width="'+ size +'" height="'+ size +'" fill="white"/>' +
                     '<circle cx="'+ size / 2 +'" cy="'+ size / 2 +'" r="'+ size / 2.5 +'" fill="black"/> ' +
                     '</mask>' + '</defs>' +
-                    '<rect width="'+ size +'" height="'+ size +'" fill="black" mask="url(#hole)"/>' + 
+                    '<rect width="'+ size +'" height="'+ size +'" fill="#000012" mask="url(#hole)"/>' + 
                     '<circle cx="'+ size / 2 +'" cy="'+ size / 2+'" r="'+ size / 2.5 +'" fill="transparent" stroke="white" stroke-width="1"/>';
     
-    }
-
-function initMask() {
-    const svg = document.getElementById("mask-svg");
-    svg.innerHTML = '<defs>' + 
-                    '<mask id="hole">' + 
-                    '<rect width="'+ size +'" height="'+ size +'" fill="white"/>' +
-                    '<circle cx="'+ size / 2 +'" cy="'+ size / 2 +'" r="'+ size / 2.5 +'" fill="black"/> ' +
-                    '</mask>' + '</defs>' +
-                    '<rect width="'+ size +'" height="'+ size +'" fill="black" mask="url(#hole)"/>' + 
-                    '<circle cx="'+ size / 2 +'" cy="'+ size / 2+'" r="'+ size / 2.5 +'" fill="transparent" stroke="white" stroke-width="1"/>';
     }
 
 function initAzimuth() {
@@ -205,22 +188,19 @@ function initAzimuth() {
     svg.innerHTML = "";
     const c = center;
     let req = equatorSize;
-    console.log(req);
+    //console.log("Equator Size: " + req);
     
     const yz = req * Math.tan((90 * toRad - lat * toRad)/2);
     const yn = -req * Math.tan((90 * toRad + lat * toRad)/2);
     const yaz = (yz - yn) / 2;
     const yc = (yz + yn) / 2;
 
-    console.log(yz, yn);
-    console.log(yaz, yc);
-
-    for (let i = -90; i < 90; i += 15) {
+    for (let i = -90; i < 90; i+= 15) {
         
         const xa = yaz * Math.tan(i * toRad);
         const ra = yaz / Math.cos(i * toRad);
 
-        console.log(i, xa, ra);
+        //console.log("For Altitude: " + i + ", " + xa + " " + ra);
 
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", c - negative * xa);
@@ -228,23 +208,94 @@ function initAzimuth() {
         circle.setAttribute("r", ra);
         circle.setAttribute("fill", "transparent");
         circle.setAttribute("stroke", "white");
-        circle.setAttribute("stroke-width", ".5");
+        circle.setAttribute("stroke-width", [i % 45 == 0 ? .5 : .001]);
         svg.appendChild(circle);
     }
+
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", c);
+    line.setAttribute("y1", c - materSize);
+    line.setAttribute("x2", c);
+    line.setAttribute("y2", c + materSize);
+    line.setAttribute("stroke", "white");
+    line.setAttribute("stroke-width", .5);
+    svg.appendChild(line);
 }
 
 function printSiderealTime() {
         
     const date = new Date();
-    let epoch = new Date("2017-01-01");
-    let epochSec = date.getTime() - epoch.getTime();
-    const sidRotate = -epochSec % 86164090.5 / 86164090.5 * 360;
-    const manilaLong = 120.9;
-    const rotate = (sidRotate + 90 - 100.620121 - manilaLong);
+    const rotate = callTime();
     const printLog = 360 - ((360 + 270 + rotate) % 360);
 
-    document.getElementById("sidereal-time").innerHTML = "Sidereal Time: " + Math.floor(Math.floor(printLog)/15) + "° " + Math.floor(Math.floor((printLog % 15)) * 4) + "'" + Math.floor((printLog % 15) * 4 % 1 * 60) + '"';
+    document.getElementById("sidereal-time").innerHTML = "Sidereal LHA: " + Math.floor(Math.floor(printLog)/15) + "° " + Math.floor(Math.floor((printLog % 15)) * 4) + "'" + Math.floor((printLog % 15) * 4 % 1 * 60) + '"';
     document.getElementById("sidereal-time").innerHTML += " Local Time: " + date.toLocaleTimeString();
+}
+
+function initGraduation() {
+
+    let edge = 1;
+    const svg = document.getElementById("edge-svg");
+    const rotate = callTime();
+    svg.innerHTML = "";
+
+    for (let i = 0; i < 360; i++) {
+
+        if (i % 15 == 0) {
+            edge = .9;
+            strokewidth = 1;
+        } else if (i % 5 == 0) {
+            edge = .95;
+            strokewidth = .5;
+        } else {
+            edge = .975;
+            strokewidth = .25;
+        }
+
+        j = (i * negative) - rotate;
+
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", center + materSize * Math.cos(j * negative * toRad) * edge);
+        line.setAttribute("y1", center + materSize * Math.sin(j * negative * toRad) * edge);
+        line.setAttribute("x2", center + materSize * Math.cos(j * negative * toRad));
+        line.setAttribute("y2", center + materSize * Math.sin(j * negative * toRad));
+        line.setAttribute("stroke", "white");
+        line.setAttribute("stroke-width", strokewidth);
+        svg.appendChild(line);
+    }
+        requestAnimationFrame(initGraduation);
+}
+
+function initEcliptic() {
+    const rotate = callTime();
+    const svg = document.getElementById("ecliptic-svg");
+    svg.innerHTML = "";
+
+    const radiisize = [1, 0.99];
+
+    for (let i = 0; i < radiisize.length; i++) {
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    const B = Math.tan((90 * toRad + ecliptic * toRad)/2);
+    const C = Math.tan((90 * toRad - ecliptic * toRad)/2);
+    const BC = (B+C) / 2;
+    
+    const yc = Math.tan((ecliptic * toRad)) * equatorSize; 
+    const xc = 0;
+    const r = equatorSize * (BC);
+
+    let add = 0;
+    if (negative == -1) {
+        add = 180;
+    }
+
+    circle.setAttribute("cx", center + Math.sin((rotate) * toRad) * yc);
+    circle.setAttribute("cy", center + Math.cos((rotate - add) * toRad) * yc);
+    circle.setAttribute("r", Math.abs(r*radiisize[i]));
+    circle.setAttribute("fill","transparent");
+    circle.setAttribute("stroke","gold");
+    svg.appendChild(circle);
+    }
+    requestAnimationFrame(initEcliptic);
 }
 
 function initAzimuthMask() {
@@ -283,14 +334,46 @@ function getQuote() {
     document.getElementById("quote").innerHTML = quote;
 }
 
-initClockwork();
-initFill();
-initTropic();
-initStarLines();
-initAlmucantars();
-initAzimuth();
-initMask();
-initRete();
-getQuote();
-setInterval(getQuote, 86400000);
-setInterval(printSiderealTime);
+function init() {
+    initClockwork();
+    initFill();
+    initTropic();
+    initRete();
+    initAzimuth();
+    initMask();
+    initAlmucantars();
+    initStarLines();
+    initEcliptic();
+    initGraduation();
+    getQuote();
+    setInterval(printSiderealTime);
+}
+
+init();
+
+function flip() {
+    if (negative == 1) {
+        negative = -1;
+    } else {
+        negative = 1;
+    }
+    
+    initAlmucantars();
+    initAzimuth();
+    initEcliptic();
+    getQuote();
+}
+
+function cityChange() {
+    const cityListString = document.getElementById("cities").value;
+
+    const cityList = JSON.parse(cityListString);
+    lat = cityList[0];
+    long = cityList[1];
+
+    init();
+
+    if (lat < 0) {
+        flip();
+    }
+}
