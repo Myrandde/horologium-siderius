@@ -32,10 +32,25 @@ function callTime() {
     return rotate * 2000;
 }
 
+function callSolarTime() {
+    const date = new Date();
+    let epoch = new Date("2017-01-01");
+    let epochSec = date.getTime() - epoch.getTime();
+    let tropicalYear = 365.24219 * 86400000;
+    let sunRotate = -epochSec % tropicalYear / tropicalYear * 360;
+    sunRotate = sunRotate;
+    const rotate = sunRotate + 90 - 100.620121 + 360;
+
+    const zodiac = ["Aries", "Taurus","Gem","Can","Leo","Vir","Lib","Sco","Sag","Cap","Aq","Pis"]
+    console.log(Math.floor(rotate / 15) - 1);
+    console.log( rotate % 30 + " deg of " + zodiac[(rotate / 15) - 1]);
+    return rotate;
+}
+
 function initClockwork() {
     let clock = document.getElementById('the-clock');
     //defines all the svgs automatically
-    let svgs = ["fill","tropic", "circle", "starlines", "rete", "ecliptic", "almucantar", "azimuth", "azimask","mask","edge"];
+    let svgs = ["fill","tropic", "circle", "starlines", "rete", "ecliptic", "sun", "almucantar", "azimuth", "azimask","mask","edge"];
 
 
     for (let i = 0; i < svgs.length; i++) {
@@ -149,8 +164,11 @@ function initStarLines() {
 
 function turn() {
     rotate = callTime();
+    rotate = 0;
     document.getElementById("starlines-svg").style.transform = "rotate(" + rotate * -negative + "deg)";
     document.getElementById("rete-svg").style.transform = "rotate(" + rotate * -negative + "deg)";
+    document.getElementById("ecliptic-svg").style.transform = "rotate(" + rotate * -negative + "deg)";
+    document.getElementById("edge-svg").style.transform = "rotate(" + rotate * -negative + "deg)";
 }
 
 //shows the altitude of the celestial bodies in the local sky
@@ -240,7 +258,7 @@ function printSiderealTime() {
     const rotate = callTime();
     const printLog = 360 - ((360 + 270 + rotate) % 360);
 
-    document.getElementById("sidereal-time").innerHTML = "Sidereal LHA: " + Math.floor(Math.floor(printLog)/15) + "° " + Math.floor(Math.floor((printLog % 15)) * 4) + "'" + Math.floor((printLog % 15) * 4 % 1 * 60) + '"';
+    document.getElementById("sidereal-time").innerHTML = "Sidereal LHA: " + Math.floor(Math.floor(printLog % 360)/15) + "° " + Math.floor(Math.floor((printLog % 15)) * 4) + "'" + Math.floor((printLog % 15) * 4 % 1 * 60) + '"';
     document.getElementById("sidereal-time").innerHTML += " Local Time: " + addZero((date.getUTCHours() + offset) % 24) + ":" + addZero(date.getUTCMinutes()) + ":" + addZero(date.getUTCSeconds());
 }
 
@@ -248,7 +266,6 @@ function initGraduation() {
 
     let edge = 1;
     const svg = document.getElementById("edge-svg");
-    const rotate = callTime();
     svg.innerHTML = "";
 
     for (let i = 0; i < 360; i++) {
@@ -264,7 +281,7 @@ function initGraduation() {
             strokewidth = .25;
         }
 
-        j = (i * negative) - rotate;
+        j = (i * negative);
 
         const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
         line.setAttribute("x1", center + materSize * Math.cos(j * negative * toRad) * edge);
@@ -300,14 +317,40 @@ function initEcliptic() {
         add = 180;
     }
 
-    circle.setAttribute("cx", center + Math.sin((rotate) * toRad) * yc);
-    circle.setAttribute("cy", center + Math.cos((rotate - add) * toRad) * yc);
+    circle.setAttribute("cx", center + Math.sin((0) * toRad) * yc);
+    circle.setAttribute("cy", center + Math.cos((0 - add) * toRad) * yc);
     circle.setAttribute("r", Math.abs(r*radiisize[i]));
     circle.setAttribute("fill","transparent");
     circle.setAttribute("stroke","gold");
     svg.appendChild(circle);
     }
     requestAnimationFrame(initEcliptic);
+}
+
+function initSun() {
+    let rotate = callSolarTime();
+
+    let s = equatorSize;
+    let d = ecliptic * toRad * (Math.sin(rotate * toRad));
+    let f = Math.tan(((90 * toRad - d)/2));
+
+    let h = -s * f * Math.cos(rotate * toRad);
+    let k = -s * f * Math.sin(rotate * toRad);
+
+    let ecCenter = Math.tan(ecliptic * toRad) * equatorSize; 
+
+    const svg = document.getElementById("sun-svg");
+
+    svg.innerHTML = "";
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", center + h);
+    circle.setAttribute("cy", center + k);
+    circle.setAttribute("r", 10);
+    circle.setAttribute("fill","white");
+      
+    svg.appendChild(circle);
+
+    requestAnimationFrame(initSun);
 }
 
 function initAzimuthMask() {
@@ -398,6 +441,7 @@ function init() {
     initAlmucantars();
     initStarLines();
     initEcliptic();
+    initSun();
     initGraduation();
     getQuote();
     setRangeValue();
