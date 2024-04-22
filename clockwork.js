@@ -29,22 +29,22 @@ function callTime() {
     sidRotate = sidRotate;
     const rotate = sidRotate + 90 - 100.620121 - long;
     const printLog = rotate % 360 - 90 + long;
-    return rotate * 2000;
+    return rotate;
 }
 
 function callSolarTime() {
     const date = new Date();
     let epoch = new Date("2017-01-01");
     let epochSec = date.getTime() - epoch.getTime();
-    let tropicalYear = 365.24219 * 86400000;
+    let tropicalYear = 365.24217 * 86400000 * 2;
     let sunRotate = -epochSec % tropicalYear / tropicalYear * 360;
     sunRotate = sunRotate;
-    const rotate = sunRotate + 90 - 100.620121 + 360;
-
-    const zodiac = ["Aries", "Taurus","Gem","Can","Leo","Vir","Lib","Sco","Sag","Cap","Aq","Pis"]
-    console.log(Math.floor(rotate / 15) - 1);
-    console.log( rotate % 30 + " deg of " + zodiac[(rotate / 15) - 1]);
-    return rotate;
+    let adjust = 6.620121;
+    let rotate = sunRotate + 90 - adjust + 360;
+    rotate = (rotate * 2) % 360;
+    const zodiac = ["Aries", "Taurus","Gem","Can","Leo","Vir","Lib","Sco","Sag","Cap","Aq","Pis"];
+    console.log(rotate % 30 + " deg of " + zodiac[Math.floor(rotate / 30)]);
+    return rotate + 90;
 }
 
 function initClockwork() {
@@ -164,11 +164,11 @@ function initStarLines() {
 
 function turn() {
     rotate = callTime();
-    rotate = 0;
     document.getElementById("starlines-svg").style.transform = "rotate(" + rotate * -negative + "deg)";
     document.getElementById("rete-svg").style.transform = "rotate(" + rotate * -negative + "deg)";
     document.getElementById("ecliptic-svg").style.transform = "rotate(" + rotate * -negative + "deg)";
     document.getElementById("edge-svg").style.transform = "rotate(" + rotate * -negative + "deg)";
+    document.getElementById("sun-svg").style.transform = "rotate(" + rotate * -negative + "deg)";
 }
 
 //shows the altitude of the celestial bodies in the local sky
@@ -331,11 +331,19 @@ function initSun() {
     let rotate = callSolarTime();
 
     let s = equatorSize;
+
+    let add = 0;
+
+    if (negative == -1) {
+        add = 180;
+    }
+    rotate += add;
+
     let d = ecliptic * toRad * (Math.sin(rotate * toRad));
     let f = Math.tan(((90 * toRad - d)/2));
 
     let h = -s * f * Math.cos(rotate * toRad);
-    let k = -s * f * Math.sin(rotate * toRad);
+    let k = -s * negative * f * Math.sin(rotate * toRad);
 
     let ecCenter = Math.tan(ecliptic * toRad) * equatorSize; 
 
@@ -345,11 +353,26 @@ function initSun() {
     const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     circle.setAttribute("cx", center + h);
     circle.setAttribute("cy", center + k);
-    circle.setAttribute("r", 10);
+    circle.setAttribute("r", 15);
     circle.setAttribute("fill","white");
-      
-    svg.appendChild(circle);
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    const pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+    const image = document.createElementNS("http://www.w3.org/2000/svg", "image")
+    image.setAttribute("href", "sun.png");
+    image.setAttribute("width", "30");
+    image.setAttribute("height", "30");
+    pattern.setAttribute("id", "sun");
+    pattern.setAttribute("patternUnits", "userSpaceOnUse");
+    pattern.setAttribute("width", "30");
+    pattern.setAttribute("height", "30");
+    pattern.appendChild(image);
+    defs.appendChild(pattern);
+    
+    circle.setAttribute("fill","url(#sun)");
 
+
+    svg.appendChild(defs);
+    svg.appendChild(circle);
     requestAnimationFrame(initSun);
 }
 
@@ -460,6 +483,7 @@ function flip() {
     }
     initRete();
     initStarLines();
+    initSun();
     initAlmucantars();
     initAzimuth();
     initEcliptic();
