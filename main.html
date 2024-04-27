@@ -9,8 +9,16 @@
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
     <body>
-        <body class="flex flex-col justify-center items-center align-middle h-auto bg-black">
-            <div class="relative flex justify-center items-center align-middle h-full">
+        <body class="flex flex-row justify-center items-center align-middle h-screen bg-black">
+            <div class="flex flex-row justify-center items-center align-middle">
+                <div class="p-10">
+                    <div class="flex justify-center flex-col">
+                        <input class="p-2 text-black" type="number" min="-90" max="90" id="latRange" class="lat" oninput="latChange()">
+                        <input class="p-2 text-black" type="number" min="-180" max="180" id="longRange" class="long" oninput="longChange()">
+                        <input class="p-2 text-black" type="time" value="00:00" id="time">
+                    </div>
+                </div>
+                <div class="flex w-[1000px] h-[1000px] justify-center items-center align-middle">
                 <div class="absolute w-[1000px] h-[1000px]" id="the-clock">
                 </div>
                 <div class="absolute w-[1000px] h-[1000px] flex flex-col justify-center justify-between text-center p-4">
@@ -20,14 +28,11 @@
                 </div>
             </div>
             <div class="p-10">
-                <div class="flex">
-                    <input class="p-10" type="range" min="-90" max="90" id="latRange" class="lat" oninput="latChange()">
-                    <input class="p-10" type="range" min="-180" max="180" id="longRange" class="long" oninput="longChange()">
-                </div>
-                <div>
+                <div class="flex justify-center flex-col">
                     <select name="cities" id="cities" class="text-black" onchange="cityChange()">
                     </select>
                 </div>
+            </div>
             </div>
         <script src="./clockwork.js">
         </script>
