@@ -43,7 +43,7 @@ function callSolarTime() {
     let rotate = sunRotate + 90 - adjust + 360;
     rotate = (rotate * 2) % 360;
     const zodiac = ["Aries", "Taurus","Gem","Can","Leo","Vir","Lib","Sco","Sag","Cap","Aq","Pis"];
-    console.log(rotate % 30 + " deg of " + zodiac[Math.floor(rotate / 30)]);
+    //console.log(rotate % 30 + " deg of " + zodiac[Math.floor(rotate / 30)]);
     return rotate + 90;
 }
 
@@ -355,23 +355,23 @@ function initSun() {
     circle.setAttribute("cy", center + k);
     circle.setAttribute("r", 15);
     circle.setAttribute("fill","white");
-    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-    const pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
-    const image = document.createElementNS("http://www.w3.org/2000/svg", "image")
-    image.setAttribute("href", "sun.png");
-    image.setAttribute("width", "30");
-    image.setAttribute("height", "30");
-    pattern.setAttribute("id", "sun");
-    pattern.setAttribute("patternUnits", "userSpaceOnUse");
-    pattern.setAttribute("width", "30");
-    pattern.setAttribute("height", "30");
-    pattern.appendChild(image);
-    defs.appendChild(pattern);
+    // const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    // const pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+    // const image = document.createElementNS("http://www.w3.org/2000/svg", "image")
+    // image.setAttribute("href", "sun.png");
+    // image.setAttribute("width", "30");
+    // image.setAttribute("height", "30");
+    // pattern.setAttribute("id", "sun");
+    // pattern.setAttribute("patternUnits", "userSpaceOnUse");
+    // pattern.setAttribute("width", "30");
+    // pattern.setAttribute("height", "30");
+    // pattern.appendChild(image);
+    // defs.appendChild(pattern);
     
-    circle.setAttribute("fill","url(#sun)");
+    // circle.setAttribute("fill","url(#sun)");
 
 
-    svg.appendChild(defs);
+    // svg.appendChild(defs);
     svg.appendChild(circle);
     requestAnimationFrame(initSun);
 }
@@ -408,7 +408,21 @@ function getQuote() {
     "Nur die Sterne bleibt immer", 
     "We are made of stardust",
     "Die Sterne sind immer da"];
-    document.getElementById("quote").innerHTML = cityName + " " + lat + " " + long;
+    let latDir = "";
+    let longDir = "";
+    if (lat < 0) {
+        latDir = "S";
+    } else {
+        latDir = "N";
+    }
+    if (long < 0) {
+        longDir = "W";
+    }
+    else {
+        longDir = "E";
+    }
+    let coords = Math.abs(lat) + " " + latDir + " " + Math.abs(long) + " " + longDir;
+    document.getElementById("quote").innerHTML = cityName + " " + coords;
 }
 
 function fillCityList() {
@@ -436,6 +450,7 @@ function fillCityList() {
         {"city": "Москва", "lat": 55.7558, "long": 37.6176, "offset": 3},
         {"city": "الدوحة", "lat": 25.276987, "long": 51.526987, "offset": 3},
         {"city": "Manila", "lat": 14.5995, "long": 120.9842, "offset": 8},
+        {"city": "Pigcawayan", "lat": 7.2853795, "long": 124.4210406, "offset": 8},
         {"city": "北京", "lat": 39.9042, "long": 116.4074, "offset": 9},
         {"city": "Sydney", "lat": -33.8688, "long": 151.2093, "offset": 10},
         {"city": "McMurdo Station", "lat": -77.848, "long": 166.668, "offset": 12}
@@ -474,6 +489,16 @@ function init() {
 
 fillCityList();
 init();
+
+function getTime() {
+    let date = new Date();
+    let timeinput = document.getElementById("time");
+    let time = date.getHours() + ":" + date.getMinutes() + ":" +date.getUTCSeconds();
+    console.log(time);
+    timeinput.value = time;
+}
+
+getTime();
 
 function flip() {
     if (negative == 1) {
