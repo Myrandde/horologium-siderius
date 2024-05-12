@@ -1,7 +1,7 @@
 //global variables
 const size = document.getElementById('the-clock').offsetWidth;
 const center = size / 2;
-const materSize = size * 0.4;
+const materSize = size * 0.42;
 const toRad = Math.PI / 180;
 const ecliptic = 23.4362026703;
 let lat = 14.5995;
@@ -11,6 +11,7 @@ let negative = 1;
 let maxMag = 5;
 let offset = 8;
 let cityName = "Manila";
+let date = new Date();
 
 function bodyCSS() {
     document.body.style.background = "radial-gradient(black, darkblue)";
@@ -21,7 +22,6 @@ bodyCSS();
 
 //time
 function callTime() {
-    const date = new Date();
     let epoch = new Date("2017-01-01");
     let epochSec = date.getTime() - epoch.getTime();
     
@@ -29,11 +29,11 @@ function callTime() {
     sidRotate = sidRotate;
     const rotate = sidRotate + 90 - 100.620121 - long;
     const printLog = rotate % 360 - 90 + long;
+    //console.log(rotate);
     return rotate;
 }
 
 function callSolarTime() {
-    const date = new Date();
     let epoch = new Date("2017-01-01");
     let epochSec = date.getTime() - epoch.getTime();
     let tropicalYear = 365.24217 * 86400000 * 2;
@@ -41,20 +41,22 @@ function callSolarTime() {
     sunRotate = sunRotate;
     let adjust = 6.620121;
     let rotate = sunRotate + 90 - adjust + 360;
-    rotate = (rotate * 2) % 360;
+    rotate = (rotate * 2) % 360 + 90;
     const zodiac = ["Aries", "Taurus","Gem","Can","Leo","Vir","Lib","Sco","Sag","Cap","Aq","Pis"];
     //console.log(rotate % 30 + " deg of " + zodiac[Math.floor(rotate / 30)]);
-    return rotate + 90;
+    //console.log(rotate);
+    return rotate;
 }
 
 function initClockwork() {
     let clock = document.getElementById('the-clock');
     //defines all the svgs automatically
-    let svgs = ["fill","tropic", "circle", "starlines", "rete", "ecliptic", "sun", "almucantar", "azimuth", "azimask","mask","edge"];
+    let svgs = ["fill","tropic", "circle", "starlines", "rete", "ecliptic", "sun", "almucantar", "azimuth", "azimask","mask","edge","ping"];
 
 
     for (let i = 0; i < svgs.length; i++) {
-        clock.innerHTML += `<svg class="absolute" id="${svgs[i]}-svg" width="${size}" height="${size}""></svg>`;
+        let svgSize = size;
+        clock.innerHTML += `<svg class="absolute" id="${svgs[i]}-svg" width="${svgSize}" height="${svgSize}""></svg>`;
     }
 }
 
@@ -163,12 +165,13 @@ function initStarLines() {
 }
 
 function turn() {
-    rotate = callTime();
+    let rotate = callTime();
     document.getElementById("starlines-svg").style.transform = "rotate(" + rotate * -negative + "deg)";
     document.getElementById("rete-svg").style.transform = "rotate(" + rotate * -negative + "deg)";
     document.getElementById("ecliptic-svg").style.transform = "rotate(" + rotate * -negative + "deg)";
     document.getElementById("edge-svg").style.transform = "rotate(" + rotate * -negative + "deg)";
     document.getElementById("sun-svg").style.transform = "rotate(" + rotate * -negative + "deg)";
+    requestAnimationFrame(turn);
 }
 
 //shows the altitude of the celestial bodies in the local sky
@@ -199,10 +202,10 @@ function initMask() {
     svg.innerHTML = '<defs>' + 
                     '<mask id="hole">' + 
                     '<rect width="'+ size +'" height="'+ size +'" fill="white"/>' +
-                    '<circle cx="'+ size / 2 +'" cy="'+ size / 2 +'" r="'+ size / 2.5 +'" fill="black"/> ' +
+                    '<circle cx="'+ center +'" cy="'+ center +'" r="'+ materSize +'" fill="black"/> ' +
                     '</mask>' + '</defs>' +
                     '<rect width="'+ size +'" height="'+ size +'" fill="#000012" mask="url(#hole)"/>' + 
-                    '<circle cx="'+ size / 2 +'" cy="'+ size / 2+'" r="'+ size / 2.5 +'" fill="transparent" stroke="white" stroke-width="1"/>';
+                    '<circle cx="'+ center +'" cy="'+ center +'" r="'+ materSize +'" fill="transparent" stroke="white" stroke-width="1"/>';
     
     }
 
@@ -427,11 +430,11 @@ function getQuote() {
 
 function fillCityList() {
     
-    console.log("Filling City List");
     let select = document.getElementById("cities");
     select.innerHTML = "";
 
     let cities = [
+        {"city": "Manila", "lat": 14.5995, "long": 120.9842, "offset": 8},
         {"city": "New York", "lat": 40.7128, "long": -74.0060, "offset": -4},
         {"city": "Alert", "lat": 82.5000, "long": -68.5167, "offset": -4},
         {"city": "Buenos Aires", "lat": -34.6037, "long": -58.3816, "offset": -3},
@@ -447,11 +450,11 @@ function fillCityList() {
         {"city": "Berlin", "lat": 52.5200, "long": 13.4050, "offset": 2},
         {"city": "Königsberg", "lat": 54.7104, "long": 20.4522, "offset": 2},
         {"city": "Pretoria", "lat": -25.7461, "long": 28.1881, "offset": 2},
-        {"city": "Москва", "lat": 55.7558, "long": 37.6176, "offset": 3},
-        {"city": "الدوحة", "lat": 25.276987, "long": 51.526987, "offset": 3},
-        {"city": "Manila", "lat": 14.5995, "long": 120.9842, "offset": 8},
+        {"city": "Moscow", "lat": 55.7558, "long": 37.6176, "offset": 3},
+        {"city": "Doha", "lat": 25.276987, "long": 51.526987, "offset": 3},
+        {"city": "Daanbantayan", "lat": 11.2511368, "long": 124.0010077, "offset": 8},
         {"city": "Pigcawayan", "lat": 7.2853795, "long": 124.4210406, "offset": 8},
-        {"city": "北京", "lat": 39.9042, "long": 116.4074, "offset": 9},
+        {"city": "Beijing", "lat": 39.9042, "long": 116.4074, "offset": 9},
         {"city": "Sydney", "lat": -33.8688, "long": 151.2093, "offset": 10},
         {"city": "McMurdo Station", "lat": -77.848, "long": 166.668, "offset": 12}
     ];
@@ -462,6 +465,66 @@ function fillCityList() {
         option.value = JSON.stringify([element.city,element.lat, element.long, element.offset]);
         select.appendChild(option);
     });
+}
+
+function fillStarList() {
+    
+    let select = document.getElementById("starlist");
+    select.innerHTML = "";
+
+    let stars = [
+        {"star": "Sirius", "ra": 6.751936111, "dec": -16.72730556},
+        {"star": "Rasalhague", "ra": 17.58260833, "dec": 12.5565}
+    ];
+
+    stars.forEach(element => {
+        let option = document.createElement("option");
+        option.text = element.star;
+        option.value = JSON.stringify([element.star,element.ra, element.dec]);
+        select.appendChild(option);
+    });
+}
+
+function starPing() {
+    const svg = document.getElementById("rete-svg");
+    const starListString = document.getElementById("starlist").value;
+    const starList = JSON.parse(starListString);
+    starName = starList[0];
+    let ra = starList[1];
+    let dec = starList[2];
+
+    for (let i = 0; i < 10; i++) {
+        
+        let rotate = callTime();
+        svg.innerHTML = "";
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        const twinkle = 0;
+
+        const theta = Math.tan((90 * toRad - (negative * dec) * toRad)/2);
+
+        const xc = negative * -equatorSize * theta * Math.cos(((ra - rotate) + 180) * toRad);
+        const yc = -equatorSize * theta * Math.sin(((ra - rotate) + 180) * toRad);
+        const radius = i;
+
+        if (radius < 0) {
+
+        } else {
+
+        circle.setAttribute("cx", center + xc);
+        circle.setAttribute("cy", center - yc);
+        circle.setAttribute("r", radius);
+        
+        if (((negative * dec)) > -ecliptic) {
+            circle.setAttribute("fill", "white");
+            circle.setAttribute("stroke", "white");
+        } else {
+            circle.setAttribute("fill", "transparent");
+            circle.setAttribute("stroke", "transparent");
+        } 
+            circle.setAttribute("stroke-width", twinkle);
+            svg.appendChild(circle);
+        }
+    }
 }
 
 function setRangeValue() {
@@ -488,16 +551,32 @@ function init() {
 }
 
 fillCityList();
+fillStarList();
 init();
 
 function getTime() {
     let date = new Date();
+    let dateinput = document.getElementById("date");
     let timeinput = document.getElementById("time");
-    let time = date.getHours() + ":" + date.getMinutes() + ":" +date.getUTCSeconds();
+    let dateinsert = date.getFullYear() + "-" + addZero((date.getMonth() + 1)) + "-" + addZero(date.getDate());
+    let time = addZero(date.getHours()) + ":" + addZero(date.getMinutes()) + ":" + addZero(date.getUTCSeconds());
     console.log(time);
+    dateinput.value = dateinsert;
     timeinput.value = time;
 }
 
+function changeTime() {
+    console.log("Changing Time");
+    const dateinput = document.getElementById("date");
+    const timeinput = document.getElementById("time");
+    date = new Date(dateinput.value + " " + timeinput.value);
+    initSun();
+}
+
+function resetTime() {
+    date = new Date();
+    getTime();
+}
 getTime();
 
 function flip() {
